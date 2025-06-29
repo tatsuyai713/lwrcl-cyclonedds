@@ -1,15 +1,15 @@
-# LWRCL (LightWeight Rclcpp Compatible Library)  with QNX 8.0 support
+# LWRCL (LightWeight Rclcpp Compatible Library)
 
-This repository provides build scripts and samples for Fast DDS, designed to be compatible with ROS 2 topics. It serves as a bridge for developers looking to integrate Fast DDS with ROS 2 ecosystems, ensuring seamless communication and interoperability between systems using these technologies.
+This repository provides build scripts and samples for Cyclone DDS, designed to be compatible with ROS 2 topics. It serves as a bridge for developers looking to integrate Cyclone DDS with ROS 2 ecosystems, ensuring seamless communication and interoperability between systems using these technologies.
 
-This library provides a simplified API similar to ROS 2's rclcpp for working with Fast DDS, enabling easier integration and management of nodes, publishers, subscribers, and timers within the Fast DDS ecosystem.
+This library provides a simplified API similar to ROS 2's rclcpp for working with Cyclone DDS, enabling easier integration and management of nodes, publishers, subscribers, and timers within the Cyclone DDS ecosystem.
 
-And also, this library enables to implement ROS 2 compatible applications with Fast DDS on lightweight SBCs such as Raspberry Pi.
+And also, this library enables to implement ROS 2 compatible applications with Cyclone DDS on lightweight SBCs such as Raspberry Pi.
 
 ## Features
 
-- **Fast DDS Build Scripts:** Simplify the process of installing and setting up Fast DDS on Ubuntu/Debian and QNX systems.
-- **ROS 2 Compatible Topics:** Includes samples that demonstrate how to publish and subscribe to ROS 2 topics using Fast DDS, facilitating integration into existing ROS 2 projects.
+- **Cyclone DDS Build Scripts:** Simplify the process of installing and setting up Cyclone DDS on Ubuntu/Debian and QNX systems.
+- **ROS 2 Compatible Topics:** Includes samples that demonstrate how to publish and subscribe to ROS 2 topics using Cyclone DDS, facilitating integration into existing ROS 2 projects.
 - **ROS Compatible Libraries:** Offers support for building and installing libraries crucial for ROS compatibility, such as yaml-cpp, ROS data types, and tf2.
 - **lwrcl:** Please read `lwrcl/README.md`.
 
@@ -28,27 +28,24 @@ source /opt/ros/humble/setup.bash
 Clone this repository and enter the directory:
 
 ```bash
-git clone --recursive https://github.com/tatsuyai713/lwrcl.git
-cd lwrcl
+git clone --recursive https://github.com/tatsuyai713/lwrcl-cyclonedds.git
+cd lwrcl-cyclonedds
 ```
 
 
-### Install Fast DDS
+### Install Cyclone DDS
 
-Install Fast DDS and necessary DDS packages on Ubuntu/Debian:
+Install Cyclone DDS and necessary DDS packages on Ubuntu/Debian:
 
 ```bash
 cd scripts
-./install_fast_dds_ubuntu_debian.sh
-# Follow the script instructions...
-source ~/.bashrc
+./build_cyclone.sh
 ```
 
 ### Build and Install ROS Data Types
 
 ```bash
-cd ../lwrcl
-./build_data_types.sh install
+./build_data_types.sh
 ```
 
 ### Build and Install LWRCL
@@ -83,5 +80,5 @@ This workspace includes or utilizes the following open-source projects:
 - yaml-cpp: https://github.com/jbeder/yaml-cpp
 - Fast-DDS: https://github.com/eProsima/Fast-DDS
 
-This guide provides a comprehensive overview of setting up and using the Fast DDS / ROS 2 Compatible Workspace, ensuring that users can seamlessly integrate Fast DDS into their ROS 2 projects for efficient and interoperable communication.
+This guide provides a comprehensive overview of setting up and using the Cyclone DDS / ROS 2 Compatible Workspace, ensuring that users can seamlessly integrate Cyclone DDS into their ROS 2 projects for efficient and interoperable communication.
 
