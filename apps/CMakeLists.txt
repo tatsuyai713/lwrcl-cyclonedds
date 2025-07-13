@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.16.3)
-project(lwrcl)
+project("apps")
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" )
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
     message("|||||||||QNX||||||||")
@@ -21,31 +30,13 @@ else()
     link_directories(/opt/qnx/cyclonedds/lib)
 endif()
 
+add_subdirectory(lwrcl_example)
 
-add_library(${PROJECT_NAME} SHARED src/${PROJECT_NAME}.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+# if(${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
+# else()
+# add_subdirectory(ROSTypeImagePubSubEdge)
+# add_subdirectory(ROSTypeImagePubSubMono)
+# add_subdirectory(ROSTypeImagePubSubExecutor)
+# endif()
 
-target_link_libraries(${PROJECT_NAME} ddsc ddscxx yaml-cpp)
-
-# Install targets
-install(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
-
-# Install headers
-install(FILES 
-include/lwrcl.hpp 
-include/cyclonedds_header.hpp
-include/publisher.hpp 
-include/subscription.hpp 
-include/clock_time_duration.hpp
-include/timer.hpp 
-include/channel.hpp
-include/qos.hpp
-DESTINATION include/)
-
-install(FILES
-include/rclcpp/rclcpp.hpp
-include/rclcpp/qos.hpp
-DESTINATION include/rclcpp)
-
+# add_subdirectory(ROSTypeImagePubSub)

@@ -60,17 +60,9 @@ namespace lwrcl
         // Create topic
         dds::topic::qos::TopicQos topic_qos;
         
-        // Try to find existing topic first, then create if not found
-        try {
-          // Try to find existing topic
-          dds::topic::Topic<T> existing_topic = dds::topic::find<dds::topic::Topic<T>>(*participant_, topic_name);
-          topic_ = std::make_shared<dds::topic::Topic<T>>(existing_topic);
-          topic_owned_ = false;
-        } catch (const dds::core::InvalidArgumentError&) {
-          // Topic doesn't exist, create new one
-          topic_ = std::make_shared<dds::topic::Topic<T>>(*participant_, topic_name, topic_qos);
-          topic_owned_ = true;
-        }
+        // Create topic directly (Cyclone DDS doesn't require topic reuse checking)
+        topic_ = std::make_shared<dds::topic::Topic<T>>(*participant_, topic_name, topic_qos);
+        topic_owned_ = true;
 
         // Configure DataWriter QoS
         dds::pub::qos::DataWriterQos writer_qos;
@@ -96,8 +88,8 @@ namespace lwrcl
           writer_qos << dds::core::policy::Durability::TransientLocal();
         }
 
-        // Create DataWriter with listener
-        writer_ = std::make_shared<dds::pub::DataWriter<T>>(*publisher_, *topic_, writer_qos, &listener_);
+        // Create DataWriter without listener first, then set if needed
+        writer_ = std::make_shared<dds::pub::DataWriter<T>>(*publisher_, *topic_, writer_qos);
         
       } catch (const dds::core::Exception& e) {
         cleanup();

@@ -52,10 +52,9 @@ namespace lwrcl
   {
   public:
     SubscriberCallback(
-        std::function<void(std::shared_ptr<T>)> callback_function, std::shared_ptr<T> message_ptr,
+        std::function<void(std::shared_ptr<T>)> callback_function,
         std::mutex &lwrcl_subscriber_mutex)
         : callback_function_(callback_function),
-          message_ptr_(message_ptr),
           lwrcl_subscriber_mutex_(lwrcl_subscriber_mutex)
     {
     }
@@ -70,8 +69,18 @@ namespace lwrcl
     void invoke() override
     {
       std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
-      try {
-        callback_function_(message_ptr_);
+      try
+      {
+        for (const auto &sample : messages_)
+        {
+          if (sample.info().valid())
+          {
+            auto message_ptr = std::make_shared<T>(sample.data());
+
+            callback_function_(message_ptr);
+          }
+        }
+        messages_ = dds::sub::LoanedSamples<T>();
       }
       catch (const std::exception &e)
       {
@@ -83,9 +92,15 @@ namespace lwrcl
       }
     }
 
+    void set_messages(dds::sub::LoanedSamples<T> &messages)
+    {
+      std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
+      messages_ = messages;
+    }
+
   private:
     std::function<void(std::shared_ptr<T>)> callback_function_;
-    std::shared_ptr<T> message_ptr_;
+    dds::sub::LoanedSamples<T> messages_;
     std::mutex &lwrcl_subscriber_mutex_;
   };
 
@@ -101,9 +116,8 @@ namespace lwrcl
           reader_(nullptr),
           stop_flag_(false),
           waitset_thread_(),
-          message_ptr_(std::make_shared<T>()),
           subscription_callback_(std::make_unique<SubscriberCallback<T>>(
-              callback_function_, message_ptr_, lwrcl_subscriber_mutex_)),
+              callback_function_, lwrcl_subscriber_mutex_)),
           pollable_buffer_(),
           count_(0)
     {
@@ -176,25 +190,23 @@ namespace lwrcl
           }
 
           // Check for subscription matches
-          auto matched_status = reader_->subscription_matched_status();
-          count_.store(matched_status.current_count());
+          try {
+            auto matched_status = reader_->subscription_matched_status();
+            count_.store(matched_status.current_count());
+          } catch (const dds::core::Exception& e) {
+            // Status not available, continue
+          }
 
           // Try to read available data
           dds::sub::LoanedSamples<T> samples = reader_->take();
           
           if (samples.length() > 0) {
-            std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
-            
+            subscription_callback_->set_messages(samples);
+            // Queue the callback
+            channel_->produce(subscription_callback_.get());
             for (const auto& sample : samples) {
               if (sample.info().valid()) {
-                // Create a copy of the data
-                auto message_copy = std::make_shared<T>(sample.data());
                 
-                // Update the message pointer for the callback
-                message_ptr_ = message_copy;
-                
-                // Queue the callback
-                channel_->produce(subscription_callback_.get());
                 
                 // Add to pollable buffer
                 new_info.source_timestamp = std::chrono::system_clock::now();
@@ -226,7 +238,6 @@ namespace lwrcl
     std::shared_ptr<dds::sub::DataReader<T>> reader_;
     std::atomic<bool> stop_flag_;
     std::thread waitset_thread_;
-    std::shared_ptr<T> message_ptr_;
 
     std::unique_ptr<SubscriberCallback<T>> subscription_callback_;
     std::mutex lwrcl_subscriber_mutex_;
@@ -268,17 +279,9 @@ namespace lwrcl
         // Create topic
         dds::topic::qos::TopicQos topic_qos;
         
-        // Try to find existing topic first, then create if not found
-        try {
-          // Try to find existing topic
-          dds::topic::Topic<T> existing_topic = dds::topic::find<dds::topic::Topic<T>>(*participant_, topic_name);
-          topic_ = std::make_shared<dds::topic::Topic<T>>(existing_topic);
-          topic_owned_ = false;
-        } catch (const dds::core::InvalidArgumentError&) {
-          // Topic doesn't exist, create new one
-          topic_ = std::make_shared<dds::topic::Topic<T>>(*participant_, topic_name, topic_qos);
-          topic_owned_ = true;
-        }
+        // Create topic directly (Cyclone DDS doesn't require topic reuse checking)
+        topic_ = std::make_shared<dds::topic::Topic<T>>(*participant_, topic_name, topic_qos);
+        topic_owned_ = true;
 
         // Configure DataReader QoS
         dds::sub::qos::DataReaderQos reader_qos;
@@ -304,7 +307,7 @@ namespace lwrcl
           reader_qos << dds::core::policy::Durability::TransientLocal();
         }
 
-        // Create DataReader
+        // Create DataReader without listener (listener handling will be done differently)
         reader_ = std::make_shared<dds::sub::DataReader<T>>(*subscriber_, *topic_, reader_qos);
         
         // Initialize and start the waitset
@@ -357,7 +360,6 @@ namespace lwrcl
         auto matched_status = reader_->subscription_matched_status();
         return matched_status.current_count();
       } catch (const dds::core::Exception& e) {
-        std::cerr << "Error getting publisher count: " << e.what() << std::endl;
         return 0;
       }
     }
