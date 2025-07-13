@@ -41,8 +41,7 @@
 #include "tf2_ros/transform_listener.h"
 
 #include "lwrcl.hpp"
-#include "tf2_msgs/msg/TFMessage.h"
-#include "tf2_msgs/msg/TFMessagePubSubTypes.h"
+#include "tf2_msgs/msg/TFMessage.hpp"
 
 class TFListenerNode : public lwrcl::Node
 {
@@ -77,7 +76,7 @@ public:
   tf2_msgs::msg::TFMessage message_;
   std::mutex map_mutex_;
 
-  void callback(tf2_msgs::msg::TFMessage::SharedPtr in_message)
+  void callback(std::shared_ptr<tf2_msgs::msg::TFMessage> in_message)
 {
     if (in_message == nullptr)
     {

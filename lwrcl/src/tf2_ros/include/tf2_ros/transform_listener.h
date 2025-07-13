@@ -42,7 +42,7 @@
 #include "tf2/time.h"
 #include "tf2_ros/visibility_control.h"
 
-#include "tf2_msgs/msg/tf_message.hpp"
+#include "tf2_msgs/msg/TFMessage.hpp"
 
 namespace tf2_ros
 {
@@ -91,7 +91,7 @@ namespace tf2_ros
     }
     /// Callback function for ros message subscriptoin
     TF2_ROS_PUBLIC
-    void subscription_callback(tf2_msgs::msg::TFMessage::SharedPtr msg, bool is_static);
+    void subscription_callback(std::shared_ptr<tf2_msgs::msg::TFMessage> msg, bool is_static);
 
     tf2::BufferCore &buffer_;
     lwrcl::Node::SharedPtr node_;

@@ -14,7 +14,7 @@ namespace lwrcl
 {
 
   template <typename T>
-  class PublisherListener : public dds::pub::DataWriterListener<T>
+  class PublisherListener : public dds::pub::NoOpDataWriterListener<T>
   {
   public:
     void on_publication_matched(dds::pub::DataWriter<T>& writer, const dds::core::status::PublicationMatchedStatus& status) override
@@ -96,7 +96,7 @@ namespace lwrcl
           writer_qos << dds::core::policy::Durability::TransientLocal();
         }
 
-        // Create DataWriter
+        // Create DataWriter with listener
         writer_ = std::make_shared<dds::pub::DataWriter<T>>(*publisher_, *topic_, writer_qos, &listener_);
         
       } catch (const dds::core::Exception& e) {

@@ -42,12 +42,9 @@
 #include "tf2/exceptions.h"
 #include "tf2/convert.h"
 
-#include "geometry_msgs/msg/TransformStamped.h"
-#include "geometry_msgs/msg/TransformStampedPubSubTypes.h"
-#include "builtin_interfaces/msg/Duration.h"
-#include "builtin_interfaces/msg/DurationPubSubTypes.h"
-#include "builtin_interfaces/msg/Time.h"
-#include "builtin_interfaces/msg/TimePubSubTypes.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
+#include "builtin_interfaces/msg/Duration.hpp"
+#include "builtin_interfaces/msg/Time.hpp"
 #include "lwrcl.hpp"
 
 namespace tf2_ros

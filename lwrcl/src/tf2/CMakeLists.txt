@@ -8,9 +8,11 @@ target_include_directories(tf2 PUBLIC
 )
 
 target_link_libraries(tf2 
+  builtin_interfaces
   std_msgs
   geometry_msgs
-  fastrtps fastcdr)
+  tf2_msgs
+  ddsc ddscxx)
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.

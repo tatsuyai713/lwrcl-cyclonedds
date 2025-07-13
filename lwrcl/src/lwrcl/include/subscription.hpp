@@ -182,7 +182,7 @@ namespace lwrcl
           // Try to read available data
           dds::sub::LoanedSamples<T> samples = reader_->take();
           
-          if (!samples.empty()) {
+          if (samples.length() > 0) {
             std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
             
             for (const auto& sample : samples) {

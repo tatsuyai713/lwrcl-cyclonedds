@@ -46,11 +46,9 @@
 #include "tf2/LinearMath/Transform.h"
 #include "tf2/LinearMath/Vector3.h"
 
-#include "builtin_interfaces/msg/Time.h"
-#include "geometry_msgs/msg/Transform.h"
-#include "geometry_msgs/msg/TransformPubSubTypes.h"
-#include "geometry_msgs/msg/TransformStamped.h"
-#include "geometry_msgs/msg/TransformStampedPubSubTypes.h"
+#include "builtin_interfaces/msg/Time.hpp"
+#include "geometry_msgs/msg/Transform.hpp"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 
 namespace tf2
 {

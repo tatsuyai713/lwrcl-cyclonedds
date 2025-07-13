@@ -56,7 +56,7 @@ namespace tf2_ros
   }
 
   void TransformListener::subscription_callback(
-      tf2_msgs::msg::TFMessage::SharedPtr message,
+      std::shared_ptr<tf2_msgs::msg::TFMessage> message,
       bool is_static)
   {
 

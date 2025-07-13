@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-#include "geometry_msgs/msg/TransformStamped.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 
 #include "tf2/time.h"
 #include "tf2/visibility_control.h"

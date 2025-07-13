@@ -44,8 +44,7 @@
 #include "tf2/buffer_core.h"
 #include "tf2/time.h"
 
-#include "geometry_msgs/msg/TransformStamped.h"
-#include "geometry_msgs/msg/TransformStampedPubSubTypes.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 #include "lwrcl.hpp"
 
 namespace tf2_ros

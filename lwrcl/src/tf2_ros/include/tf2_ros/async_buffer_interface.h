@@ -40,8 +40,7 @@
 #include "tf2/time.h"
 #include "tf2/transform_datatypes.h"
 
-#include "geometry_msgs/msg/TransformStamped.h"
-#include "geometry_msgs/msg/TransformStampedPubSubTypes.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 
 namespace tf2_ros
 {

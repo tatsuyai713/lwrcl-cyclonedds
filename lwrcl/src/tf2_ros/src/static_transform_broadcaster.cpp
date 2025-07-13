@@ -33,11 +33,9 @@
 
 #include <vector>
 
-#include "geometry_msgs/msg/TransformStamped.h"
-#include "geometry_msgs/msg/TransformStampedPubSubTypes.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 #include "lwrcl.hpp"
-#include "tf2_msgs/msg/TFMessage.h"
-#include "tf2_msgs/msg/TFMessagePubSubTypes.h"
+#include "tf2_msgs/msg/TFMessage.hpp"
 
 namespace tf2_ros
 {

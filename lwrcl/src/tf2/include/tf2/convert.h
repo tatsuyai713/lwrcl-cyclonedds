@@ -35,7 +35,7 @@
 #include <array>
 #include <string>
 
-#include "geometry_msgs/msg/TransformStamped.h"
+#include "geometry_msgs/msg/TransformStamped.hpp"
 #include "tf2/exceptions.h"
 #include "tf2/impl/convert.h"
 #include "tf2/transform_datatypes.h"
