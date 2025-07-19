@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/Image.hpp"
+#include "sensor_msgs/msg/image.hpp"
 
 void myCallbackFunction(std::shared_ptr<sensor_msgs::msg::Image> message, rclcpp::Node::SharedPtr node)
 {

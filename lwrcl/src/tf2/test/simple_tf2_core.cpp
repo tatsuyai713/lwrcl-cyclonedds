@@ -35,8 +35,8 @@
 #include <string>
 #include <vector>
 
-#include "builtin_interfaces/msg/Time.hpp"
-#include "geometry_msgs/msg/TransformStamped.hpp"
+#include "builtin_interfaces/msg/time.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 
 #include "tf2/buffer_core.h"
 #include "tf2/convert.h"

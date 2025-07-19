@@ -52,10 +52,10 @@ namespace lwrcl
   {
   public:
     SubscriberCallback(
-        std::function<void(std::shared_ptr<T>)> callback_function,
-        std::mutex &lwrcl_subscriber_mutex)
+        std::function<void(std::shared_ptr<T>)> callback_function)
         : callback_function_(callback_function),
-          lwrcl_subscriber_mutex_(lwrcl_subscriber_mutex)
+          messages_(),
+          lwrcl_subscriber_callback_mutex_()
     {
     }
 
@@ -68,19 +68,16 @@ namespace lwrcl
 
     void invoke() override
     {
-      std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
+      std::lock_guard<std::mutex> lock(lwrcl_subscriber_callback_mutex_);
       try
       {
-        for (const auto &sample : messages_)
+        for (const auto &message : messages_)
         {
-          if (sample.info().valid())
-          {
-            auto message_ptr = std::make_shared<T>(sample.data());
+          auto message_ptr = std::make_shared<T>(message);
 
-            callback_function_(message_ptr);
-          }
+          callback_function_(message_ptr);
         }
-        messages_ = dds::sub::LoanedSamples<T>();
+        messages_.clear();
       }
       catch (const std::exception &e)
       {
@@ -94,14 +91,21 @@ namespace lwrcl
 
     void set_messages(dds::sub::LoanedSamples<T> &messages)
     {
-      std::lock_guard<std::mutex> lock(lwrcl_subscriber_mutex_);
-      messages_ = messages;
+      std::lock_guard<std::mutex> lock(lwrcl_subscriber_callback_mutex_);
+
+      for (const auto &sample : messages)
+      {
+        if (sample.info().valid())
+        {
+          messages_.push_back(sample.data());
+        }
+      }
     }
 
   private:
     std::function<void(std::shared_ptr<T>)> callback_function_;
-    dds::sub::LoanedSamples<T> messages_;
-    std::mutex &lwrcl_subscriber_mutex_;
+    std::vector<T> messages_;
+    std::mutex lwrcl_subscriber_callback_mutex_;
   };
 
   template <typename T>
@@ -117,7 +121,7 @@ namespace lwrcl
           stop_flag_(false),
           waitset_thread_(),
           subscription_callback_(std::make_unique<SubscriberCallback<T>>(
-              callback_function_, lwrcl_subscriber_mutex_)),
+              callback_function_)),
           pollable_buffer_(),
           count_(0)
     {

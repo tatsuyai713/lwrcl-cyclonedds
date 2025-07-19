@@ -42,7 +42,7 @@ target_compile_definitions(tf2 PRIVATE "TF2_BUILDING_DLL")
 # # add_dependencies(test_static_cache_unittest ${catkin_EXPORTED_TARGETS})
 
 # add_executable(test_simple test/simple_tf2_core.cpp)
-# target_link_libraries(test_simple geometry_msgs fastrtps fastcdr tf2 gtest gtest_main)
+# target_link_libraries(test_simple geometry_msgs ddsc ddscxx tf2 gtest gtest_main)
 # # add_dependencies(test_simple ${catkin_EXPORTED_TARGETS})
 
 # add_executable(test_time test/test_time.cpp)

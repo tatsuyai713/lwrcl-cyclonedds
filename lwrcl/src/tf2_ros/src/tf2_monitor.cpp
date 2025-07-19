@@ -41,7 +41,7 @@
 #include "tf2_ros/transform_listener.h"
 
 #include "lwrcl.hpp"
-#include "tf2_msgs/msg/TFMessage.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 class TFListenerNode : public lwrcl::Node
 {

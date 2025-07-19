@@ -4,7 +4,7 @@
 #include <thread>
 
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/Image.hpp"
+#include "sensor_msgs/msg/image.hpp"
 
 int main(int argc, char * argv[])
 {

@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/srv/SetCameraInfo.hpp"
+#include "sensor_msgs/srv/set_camera_info.hpp"
 
 using namespace std::chrono_literals;
 

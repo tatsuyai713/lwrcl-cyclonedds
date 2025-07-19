@@ -38,8 +38,8 @@
 #include "tf2_ros/visibility_control.h"
 
 #include "lwrcl.hpp"
-#include "geometry_msgs/msg/TransformStamped.hpp"
-#include "tf2_msgs/msg/TFMessage.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 namespace tf2_ros
 {

@@ -55,7 +55,7 @@ include_directories(
     ${ROS_DATA_TYPES_INCLUDE_PATH})
 add_executable(ROSTypeImagePubSubExecutor ${ROS_TYPE_DATA_PUBLISHER_SOURCES_CXX} ${ROS_TYPE_DATA_PUBLISHER_SOURCES_CPP} ${in1_files})
 
-target_link_libraries(ROSTypeImagePubSubExecutor fastrtps fastcdr lwrcl geometry_msgs sensor_msgs yaml-cpp ${OpenCV_LIBRARIES})
+target_link_libraries(ROSTypeImagePubSubExecutor ddsc ddscxx lwrcl geometry_msgs sensor_msgs yaml-cpp ${OpenCV_LIBRARIES})
 install(TARGETS ROSTypeImagePubSubExecutor
     RUNTIME DESTINATION bin/ROSTypeImagePubSubExecutor/${BIN_INSTALL_DIR})
 install(FILES config/config.yaml DESTINATION bin/ROSTypeImagePubSubExecutor/${BIN_INSTALL_DIR}/config PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)

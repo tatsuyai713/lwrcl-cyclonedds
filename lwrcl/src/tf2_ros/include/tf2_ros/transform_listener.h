@@ -42,7 +42,7 @@
 #include "tf2/time.h"
 #include "tf2_ros/visibility_control.h"
 
-#include "tf2_msgs/msg/TFMessage.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 namespace tf2_ros
 {

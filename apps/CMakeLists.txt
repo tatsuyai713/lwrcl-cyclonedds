@@ -32,11 +32,11 @@ endif()
 
 add_subdirectory(lwrcl_example)
 
-# if(${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
-# else()
-# add_subdirectory(ROSTypeImagePubSubEdge)
-# add_subdirectory(ROSTypeImagePubSubMono)
-# add_subdirectory(ROSTypeImagePubSubExecutor)
-# endif()
+if(${CMAKE_SYSTEM_NAME} STREQUAL "QNX")
+else()
+add_subdirectory(ROSTypeImagePubSubEdge)
+add_subdirectory(ROSTypeImagePubSubMono)
+add_subdirectory(ROSTypeImagePubSubExecutor)
+endif()
 
-# add_subdirectory(ROSTypeImagePubSub)
+add_subdirectory(ROSTypeImagePubSub)

@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/Image.hpp"
+#include "sensor_msgs/msg/image.hpp"
 
 // Callback function for handling received messages
 void myCallbackFunction(std::shared_ptr<sensor_msgs::msg::Image> message)
