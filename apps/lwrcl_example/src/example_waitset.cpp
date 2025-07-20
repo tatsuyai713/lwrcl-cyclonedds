@@ -21,7 +21,7 @@ int main(int argc, char * argv[])
   auto subscription_ptr = node->create_subscription<sensor_msgs::msg::Image>(
     "TESTTopic2",
     10,
-    [](std::shared_ptr<sensor_msgs::msg::Image>) {
+    [](sensor_msgs::msg::Image::SharedPtr) {
       // no-op
     }
   );

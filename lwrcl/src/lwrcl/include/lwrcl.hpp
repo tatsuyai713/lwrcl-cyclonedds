@@ -46,6 +46,8 @@ namespace lwrcl
   void sleep_for(const lwrcl::Duration &duration);
   void spin_some(std::shared_ptr<lwrcl::Node> node);
 
+  using DomainParticipant=dds::domain::DomainParticipant;
+
   class ParameterBase
   {
   public:

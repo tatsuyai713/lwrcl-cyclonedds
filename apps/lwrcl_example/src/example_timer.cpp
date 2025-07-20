@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-void myCallbackFunction(std::shared_ptr<sensor_msgs::msg::Image> message, rclcpp::Node::SharedPtr node)
+void myCallbackFunction(sensor_msgs::msg::Image::SharedPtr message, rclcpp::Node::SharedPtr node)
 {
   if (message == nullptr)
   {
@@ -12,7 +12,7 @@ void myCallbackFunction(std::shared_ptr<sensor_msgs::msg::Image> message, rclcpp
   RCLCPP_WARN(node->get_logger(), "Received Image data: Width: %d, Height: %d, Encoding: %s", message->width(), message->height(), message->encoding().c_str());
 }
 
-void myTimerFunction(std::shared_ptr<sensor_msgs::msg::Image> my_message, rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_ptr)
+void myTimerFunction(sensor_msgs::msg::Image::SharedPtr my_message, rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr publisher_ptr)
 {
   static int data_value = 0;
   if (publisher_ptr == nullptr)
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  std::shared_ptr<sensor_msgs::msg::Image> pub_message = std::make_shared<sensor_msgs::msg::Image>();
+  sensor_msgs::msg::Image::SharedPtr pub_message = std::make_shared<sensor_msgs::msg::Image>();
   auto timer_ptr = node->create_wall_timer(std::chrono::milliseconds(100), [&pub_message, publisher_ptr]()
                                            { myTimerFunction(pub_message, publisher_ptr); });
 

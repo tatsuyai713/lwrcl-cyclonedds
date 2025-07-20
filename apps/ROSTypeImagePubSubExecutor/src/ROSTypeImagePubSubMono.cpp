@@ -21,7 +21,7 @@ ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(const std::string &node_name)
   init();
 }
 
-ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(std::shared_ptr<dds::domain::DomainParticipant> participant)
+ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant)
     : Node(participant), publish_topic_name_("default_topic"), subscribe_topic_name_("default_topic"), interval_ms_(1000)
 {
   counter_ = 0;
@@ -30,7 +30,7 @@ ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(std::shared_ptr<dds::domain::Doma
   init();
 }
 
-ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(std::shared_ptr<dds::domain::DomainParticipant> participant, const std::string &node_name)
+ROSTypeImagePubSubMono::ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant, const std::string &node_name)
     : Node(participant, node_name), publish_topic_name_("default_topic"), subscribe_topic_name_("default_topic"), interval_ms_(1000)
 {
   counter_ = 0;
@@ -81,7 +81,7 @@ void ROSTypeImagePubSubMono::init()
   return;
 }
 
-void ROSTypeImagePubSubMono::callbackSubscribe(std::shared_ptr<sensor_msgs::msg::Image> message)
+void ROSTypeImagePubSubMono::callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message)
 {
   if (message == nullptr)
   {

@@ -16,12 +16,12 @@ class ROSTypeImagePubSubMono : public Node
 public:
   ROSTypeImagePubSubMono(uint16_t domain_number);
   ROSTypeImagePubSubMono(const std::string &node_name);
-  ROSTypeImagePubSubMono(std::shared_ptr<dds::domain::DomainParticipant> participant);
-  ROSTypeImagePubSubMono(std::shared_ptr<dds::domain::DomainParticipant> participant, const std::string &node_name);
+  ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant);
+  ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant, const std::string &node_name);
   virtual ~ROSTypeImagePubSubMono();
 
   // Callback function to subscribe data
-  void callbackSubscribe(std::shared_ptr<sensor_msgs::msg::Image> message);
+  void callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message);
 
 private:
   void init();
@@ -32,7 +32,7 @@ private:
   Subscription<sensor_msgs::msg::Image>::SharedPtr subscriber_ptr_;
   TimerBase::SharedPtr timer_ptr_;
   int counter_;
-  std::shared_ptr<sensor_msgs::msg::Image> gray_msg_;
+  sensor_msgs::msg::Image::SharedPtr gray_msg_;
 };
 
 #endif /* ROSTYPEIMAGEPUBLSUBMONO_H_ */

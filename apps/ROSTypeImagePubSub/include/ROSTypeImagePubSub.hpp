@@ -14,7 +14,7 @@ class ROSTypeImagePubSub : public Node
 public:
   ROSTypeImagePubSub(uint16_t domain_number);
   ROSTypeImagePubSub(std::string node_name);
-  ROSTypeImagePubSub(std::shared_ptr<dds::domain::DomainParticipant> participant);
+  ROSTypeImagePubSub(std::shared_ptr<lwrcl::DomainParticipant> participant);
   virtual ~ROSTypeImagePubSub();
 
   // Override init and run methods from Node
@@ -26,7 +26,7 @@ public:
   void callbackPublish(int test);
 
   // Callback function to subscribe data
-  void callbackSubscribe(std::shared_ptr<sensor_msgs::msg::Image> message);
+  void callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message);
 
 private:
   std::string publish_topic_name_;

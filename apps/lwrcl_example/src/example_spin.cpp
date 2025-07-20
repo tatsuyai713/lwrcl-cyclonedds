@@ -2,7 +2,7 @@
 #include "sensor_msgs/msg/image.hpp"
 
 // Callback function for handling received messages
-void myCallbackFunction(std::shared_ptr<sensor_msgs::msg::Image> message)
+void myCallbackFunction(sensor_msgs::msg::Image::SharedPtr message)
 {
   if (message == nullptr)
   {

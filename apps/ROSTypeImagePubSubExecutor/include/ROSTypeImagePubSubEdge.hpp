@@ -16,12 +16,12 @@ class ROSTypeImagePubSubEdge : public Node
 public:
   ROSTypeImagePubSubEdge(uint16_t domain_number);
   ROSTypeImagePubSubEdge(const std::string &node_name);
-  ROSTypeImagePubSubEdge(std::shared_ptr<dds::domain::DomainParticipant> participant);
-  ROSTypeImagePubSubEdge(std::shared_ptr<dds::domain::DomainParticipant> participant, const std::string &node_name);
+  ROSTypeImagePubSubEdge(std::shared_ptr<lwrcl::DomainParticipant> participant);
+  ROSTypeImagePubSubEdge(std::shared_ptr<lwrcl::DomainParticipant> participant, const std::string &node_name);
   virtual ~ROSTypeImagePubSubEdge();
 
   // Callback function to subscribe data
-  void callbackSubscribe(std::shared_ptr<sensor_msgs::msg::Image> message);
+  void callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message);
 
 private:
   void init();
@@ -32,7 +32,7 @@ private:
   Subscription<sensor_msgs::msg::Image>::SharedPtr subscriber_ptr_;
   TimerBase::SharedPtr timer_ptr_;
   int counter_;
-  std::shared_ptr<sensor_msgs::msg::Image> edge_msg_;
+  sensor_msgs::msg::Image::SharedPtr edge_msg_;
 };
 
 #endif /* ROSTYPEIMAGEPUBLSUBEDGE_H_ */

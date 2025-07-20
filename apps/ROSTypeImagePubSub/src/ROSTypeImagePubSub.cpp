@@ -17,7 +17,7 @@ ROSTypeImagePubSub::ROSTypeImagePubSub(std::string node_name)
   init();
 }
 
-ROSTypeImagePubSub::ROSTypeImagePubSub(std::shared_ptr<dds::domain::DomainParticipant> participant)
+ROSTypeImagePubSub::ROSTypeImagePubSub(std::shared_ptr<lwrcl::DomainParticipant> participant)
     : Node(participant), publish_topic_name_("default_topic"), subscribe_topic_name_("default_topic"), interval_ms_(1000)
 {
   counter_ = 0;
@@ -89,7 +89,7 @@ void ROSTypeImagePubSub::callbackPublish(int test)
   publisher_ptr_->publish(publish_msg);
 }
 
-void ROSTypeImagePubSub::callbackSubscribe(std::shared_ptr<sensor_msgs::msg::Image> message)
+void ROSTypeImagePubSub::callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message)
 {
   if (message == nullptr)
   {
