@@ -16,28 +16,6 @@ cmake_minimum_required(VERSION 3.16.3)
 
 project(ROSTypeImagePubSub VERSION 1 LANGUAGES CXX)
 
-file(GLOB_RECURSE Original_IDL_Files
-  "${CMAKE_CURRENT_SOURCE_DIR}/*/*.idl"
-)
-
-if (NOT Original_I${Original_IDL_Files}DL_Files)
-    #create an initial version of these files
-    foreach(idl_file ${Original_IDL_Files})
-        get_filename_component(idl ${idl_file} NAME_WE)
-        get_filename_component(idl_dir "${idl_file}" PATH)
-        set(workingdir ${CMAKE_CURRENT_BINARY_DIR})
-        configure_file(${idl_file} ${workingdir}/${idl}.idl COPYONLY)
-        execute_process(COMMAND fastddsgen ${idl}.idl -I ${ROS_DATA_TYPES_INCLUDE_PATH} -I ${idl_dir} -typeros2 -replace -cs
-        WORKING_DIRECTORY ${workingdir}
-        INPUT_FILE ${idl}.idl)
-    endforeach(idl_file)
-endif()
-
-file(GLOB_RECURSE in1_files
-  "${CMAKE_CURRENT_BINARY_DIR}/*.cxx"
-  "${CMAKE_CURRENT_BINARY_DIR}/*.h"
-)
-
 message(STATUS "Configuring ROSTypeImagePubSub...")
 file(GLOB ROS_TYPE_DATA_PUBLISHER_SOURCES_CXX "src/*.cxx")
 file(GLOB ROS_TYPE_DATA_PUBLISHER_SOURCES_CPP "src/*.cpp")
