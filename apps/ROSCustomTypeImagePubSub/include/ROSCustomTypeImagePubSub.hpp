@@ -1,8 +1,6 @@
-#ifndef ROSTYPEIMAGEPUBLSUBMONO_H_
-#define ROSTYPEIMAGEPUBLSUBMONO_H_
+#ifndef ROSCUSTOMTYPEIMAGEPUBSUB_H_
+#define ROSCUSTOMTYPEIMAGEPUBSUB_H_
 
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include <functional>
@@ -11,14 +9,14 @@
 
 using namespace rclcpp;
 
-class ROSTypeImagePubSubMono : public Node
+class ROSCustomTypeImagePubSub : public Node
 {
 public:
-  ROSTypeImagePubSubMono(uint16_t domain_number);
-  ROSTypeImagePubSubMono(const std::string &node_name);
-  ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant);
-  ROSTypeImagePubSubMono(std::shared_ptr<lwrcl::DomainParticipant> participant, const std::string &node_name);
-  virtual ~ROSTypeImagePubSubMono();
+  ROSCustomTypeImagePubSub(uint16_t domain_number);
+  ROSCustomTypeImagePubSub(const std::string &node_name);
+  ROSCustomTypeImagePubSub(std::shared_ptr<lwrcl::DomainParticipant> participant);
+  ROSCustomTypeImagePubSub(std::shared_ptr<lwrcl::DomainParticipant> participant, const std::string &node_name);
+  virtual ~ROSCustomTypeImagePubSub();
 
   // Callback function to subscribe data
   void callbackSubscribe(sensor_msgs::msg::Image::SharedPtr message);
@@ -35,4 +33,4 @@ private:
   sensor_msgs::msg::Image::SharedPtr gray_msg_;
 };
 
-#endif /* ROSTYPEIMAGEPUBLSUBMONO_H_ */
+#endif /* ROSCUSTOMTYPEIMAGEPUBSUB_H_ */

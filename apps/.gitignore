@@ -2,3 +2,4 @@ build
 .vscode
 install
 deploy_files
+deploy_qnx_batchfile

@@ -37,7 +37,7 @@ else()
 add_subdirectory(ROSTypeImagePubSubEdge)
 add_subdirectory(ROSTypeImagePubSubMono)
 add_subdirectory(ROSTypeImagePubSubExecutor)
-add_subdirectory(ROSCustomTypeImagePubSubMono)
 endif()
 
 add_subdirectory(ROSTypeImagePubSub)
+add_subdirectory(ROSCustomTypeImagePubSub)

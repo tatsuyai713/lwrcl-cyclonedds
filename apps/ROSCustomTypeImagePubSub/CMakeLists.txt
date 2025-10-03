@@ -12,7 +12,6 @@ add_compile_options(-Wall -Wextra -Wnon-virtual-dtor
                     -Wno-deprecated-declarations -Wno-unused-result)
 
 # --- Dependencies ---
-find_package(OpenCV QUIET)
 find_package(yaml-cpp QUIET)
 
 # Paths
@@ -27,8 +26,8 @@ if(IDL_FILES STREQUAL "")
 endif()
 
 # --- Generated tree: <build>/generated/<ALIAS>/msg ---
-# NOTE: set alias to match your #include path: ROSCustomTypeImagePubSubMono
-set(GEN_PKG_DIR "${CMAKE_BINARY_DIR}/generated/ROSCustomTypeImagePubSubMono")
+# NOTE: set alias to match your #include path: ROSCustomTypeImagePubSub
+set(GEN_PKG_DIR "${CMAKE_BINARY_DIR}/generated/ROSCustomTypeImagePubSub")
 set(GEN_MSG_DIR "${GEN_PKG_DIR}/msg")
 
 # Ensure WORKING_DIRECTORY exists first
@@ -125,7 +124,7 @@ if(DEFINED ROS_DATA_TYPES_INCLUDE_PATH)
   include_directories(${ROS_DATA_TYPES_INCLUDE_PATH})
 endif()
 
-# Allow <ROSCustomTypeImagePubSubMono/msg/tf_message.hpp> during build
+# Allow <ROSCustomTypeImagePubSub/msg/tf_message.hpp> during build
 include_directories(
   ${CMAKE_BINARY_DIR}/generated
   ${GEN_PKG_DIR}
@@ -142,10 +141,15 @@ add_dependencies(ROSCustomTypeImagePubSub final_sources)
 add_dependencies(ROSCustomTypeImagePubSub idl_gen)
 
 # --- Link ---
+target_include_directories(ROSCustomTypeImagePubSub
+  SYSTEM PRIVATE
+    /opt/qnx/cyclonedds/include
+    /opt/qnx/cyclonedds-libs/include
+)
 target_link_libraries(ROSCustomTypeImagePubSub
   PRIVATE
     ddsc ddscxx
-    lwrcl geometry_msgs sensor_msgs
+    lwrcl geometry_msgs sensor_msgs std_msgs builtin_interfaces yaml-cpp
 )
 if(TARGET yaml-cpp)
   target_link_libraries(ROSCustomTypeImagePubSub PRIVATE yaml-cpp)
