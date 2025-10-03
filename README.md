@@ -53,13 +53,13 @@ cd scripts
 Build and install the lwrcl for enhanced ROS 2 compatibility:
 
 ```bash
-./build_lwrcl.sh install
+./build_lwrcl.sh
 ```
 
 ### Build and Install Libraries for ROS Compatibility
 
 ```bash
-./build_libraries.sh install
+./build_libraries.sh
 ```
 
 ### Build LWRCL Sample Applications
@@ -67,7 +67,7 @@ Build and install the lwrcl for enhanced ROS 2 compatibility:
 Compile the lwrcl sample applications:
 
 ```bash
-./build_apps.sh install
+./build_apps.sh
 ```
 
 The compiled applications can be found in the apps/install folder.
