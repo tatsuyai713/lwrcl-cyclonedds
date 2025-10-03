@@ -16,6 +16,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <cstring>  // for memcpy/memset used by SerializedMessage/Serialization
 
 #include <dds/dds.hpp>
 #include "qos.hpp"
@@ -46,7 +47,7 @@ namespace lwrcl
   void sleep_for(const lwrcl::Duration &duration);
   void spin_some(std::shared_ptr<lwrcl::Node> node);
 
-  using DomainParticipant=dds::domain::DomainParticipant;
+  using DomainParticipant = dds::domain::DomainParticipant;
 
   class ParameterBase
   {
@@ -149,7 +150,7 @@ namespace lwrcl
       while (std::getline(iss, item, ','))
       {
         std::istringstream converter(item);
-        T value;
+        T value{};
         converter >> value;
         vec.push_back(value);
       }
@@ -247,6 +248,7 @@ namespace lwrcl
     std::shared_ptr<TimerBase> create_timer(
         std::chrono::duration<Rep, Period> period, std::function<void()> callback_function)
     {
+      // Uses SYSTEM_TIME; Rate implementation now casts to system_clock::duration on QNX.
       lwrcl::Clock::ClockType clock_type = Clock::ClockType::SYSTEM_TIME;
       auto duration = Duration(period);
       auto timer = std::make_shared<TimerBase>(duration, callback_function, channel_, clock_type);
@@ -258,6 +260,7 @@ namespace lwrcl
     std::shared_ptr<TimerBase> create_wall_timer(
         std::chrono::duration<Rep, Period> period, std::function<void()> callback_function)
     {
+      // Uses STEADY_TIME; WallRate implementation casts to steady_clock::duration.
       lwrcl::Clock::ClockType clock_type = Clock::ClockType::STEADY_TIME;
       auto duration = Duration(period);
       auto timer = std::make_shared<TimerBase>(duration, callback_function, channel_, clock_type);
@@ -313,6 +316,7 @@ namespace lwrcl
     void get_parameter(const std::string &name, double &double_data) const;
     void get_parameter(const std::string &name, std::string &string_data) const;
 
+    // NOTE: Keep declaration order consistent with initializer lists (QNX builds enable -Werror=reorder).
     bool closed_;
     void stop_spin();
 
@@ -330,22 +334,22 @@ namespace lwrcl
     // Deleter for DomainParticipant
     struct DomainParticipantDeleter
     {
-      void operator()(dds::domain::DomainParticipant* participant) const 
+      void operator()(dds::domain::DomainParticipant* participant) const
       {
-        if (participant) 
+        if (participant)
         {
           delete participant;
         }
       }
     };
-    
-    // Member variables
+
+    // Member variables (order matters for -Werror=reorder)
     std::shared_ptr<dds::domain::DomainParticipant> participant_;
     typename Channel<ChannelCallback *>::SharedPtr channel_;
     Clock::SharedPtr clock_;
     std::string name_;
     bool stop_flag_;
-    bool participant_owned_;
+    bool participant_owned_;  // <-- declared AFTER public bool closed_ (above)
 
     std::forward_list<std::shared_ptr<IPublisher>> publisher_list_;
     std::forward_list<std::shared_ptr<ISubscription>> subscription_list_;
@@ -426,6 +430,7 @@ namespace lwrcl
 
   private:
     Duration period_;
+    // QNX note: system_clock has microsecond precision; implementation casts to system_clock::duration.
     std::chrono::system_clock::time_point next_time_;
   };
 
@@ -443,6 +448,7 @@ namespace lwrcl
 
   private:
     Duration period_;
+    // Uses steady_clock to avoid wall-clock jumps; implementation casts to steady_clock::duration.
     std::chrono::steady_clock::time_point next_time_;
   };
 
@@ -699,6 +705,7 @@ namespace lwrcl
     template <typename Duration>
     bool wait_for_service(const Duration &timeout)
     {
+      // Leave as system_clock; no QNX issue here because we only compare time_points of the same clock.
       std::chrono::system_clock::time_point start_time = std::chrono::system_clock::now();
       std::chrono::system_clock::time_point current_time = std::chrono::system_clock::now();
       std::chrono::system_clock::time_point end_time = start_time + timeout;
@@ -765,31 +772,31 @@ namespace lwrcl
   public:
     SerializedMessage() : data_(), is_own_buffer_(true)
     {
-      memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
+      std::memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
       data_.buffer = nullptr;
       data_.length = 0;
     }
 
     explicit SerializedMessage(size_t initial_capacity) : data_(), is_own_buffer_(true)
     {
-      memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
+      std::memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
       data_.buffer = new char[initial_capacity];
       data_.length = initial_capacity;
     }
 
     SerializedMessage(const SerializedMessage &other) : data_(), is_own_buffer_(true)
     {
-      memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
+      std::memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
       data_.buffer = new char[other.data_.length];
-      memcpy(data_.buffer, other.data_.buffer, other.data_.length);
+      std::memcpy(data_.buffer, other.data_.buffer, other.data_.length);
       data_.length = other.data_.length;
     }
 
     SerializedMessage(const lwrcl_serialized_message_t &other) : data_(), is_own_buffer_(true)
     {
-      memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
+      std::memset(&data_, 0, sizeof(lwrcl_serialized_message_t));
       data_.buffer = new char[other.length];
-      memcpy(data_.buffer, other.buffer, other.length);
+      std::memcpy(data_.buffer, other.buffer, other.length);
       data_.length = other.length;
     }
 
@@ -823,7 +830,7 @@ namespace lwrcl
           delete[] data_.buffer;
         }
         data_.buffer = new char[other.data_.length];
-        memcpy(data_.buffer, other.data_.buffer, other.data_.length);
+        std::memcpy(data_.buffer, other.data_.buffer, other.data_.length);
         data_.length = other.data_.length;
         is_own_buffer_ = true;
       }
@@ -839,7 +846,7 @@ namespace lwrcl
           delete[] data_.buffer;
         }
         data_.buffer = new char[other.length];
-        memcpy(data_.buffer, other.buffer, other.length);
+        std::memcpy(data_.buffer, other.buffer, other.length);
         data_.length = other.length;
         is_own_buffer_ = true;
       }
@@ -884,7 +891,7 @@ namespace lwrcl
 
     void set_buffer(char *buffer, size_t length)
     {
-      if (data_.buffer != nullptr)
+      if (data_.buffer != nullptr && is_own_buffer_)
       {
         delete[] data_.buffer;
       }
@@ -904,12 +911,12 @@ namespace lwrcl
         char *new_buffer = new char[new_capacity];
         if (data_.buffer != nullptr && is_own_buffer_)
         {
-          memcpy(new_buffer, data_.buffer, data_.length);
+          std::memcpy(new_buffer, data_.buffer, data_.length);
           delete[] data_.buffer;
         }
         else
         {
-          memset(new_buffer, 0, new_capacity);
+          std::memset(new_buffer, 0, new_capacity);
         }
         data_.buffer = new_buffer;
         data_.length = new_capacity;
@@ -939,15 +946,10 @@ namespace lwrcl
   public:
     static void serialize_message(T *message, SerializedMessage *serialized_message)
     {
-      // Cyclone DDS serialization implementation
-      // This is a placeholder - actual implementation would use Cyclone DDS APIs
-      // for CDR serialization or custom serialization methods
-      
-      // Simple implementation using basic binary serialization
-      // In practice, you would use Cyclone DDS's built-in serialization
+      // Placeholder for Cyclone DDS serialization.
       size_t message_size = sizeof(T);
       serialized_message->reserve(message_size + 4); // +4 for header
-      
+
       char *buffer = serialized_message->get_rcl_serialized_message().buffer;
       uint8_t header[4] = {0x00, 0x01, 0x00, 0x00};
       

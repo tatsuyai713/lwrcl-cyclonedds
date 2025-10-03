@@ -10,14 +10,14 @@ add_executable(example_class_pubsub_executor src/example_class_pubsub_executor.c
 add_executable(example_service_server src/example_service_server.cpp)
 add_executable(example_service_client src/example_service_client.cpp)
 
-target_link_libraries(example_spin PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_timer PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_waitset PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_class_pub PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_class_sub PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_class_pubsub_executor PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_service_server PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
-target_link_libraries(example_service_client PRIVATE ddsc ddscxx std_msgs sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_spin PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_timer PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_waitset PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_class_pub PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_class_sub PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_class_pubsub_executor PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_service_server PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
+target_link_libraries(example_service_client PRIVATE ddsc ddscxx std_msgs geometry_msgs builtin_interfaces sensor_msgs lwrcl yaml-cpp)
 
 # Install targets
 install(TARGETS example_spin example_timer example_waitset example_class_pub example_class_sub example_class_pubsub_executor 

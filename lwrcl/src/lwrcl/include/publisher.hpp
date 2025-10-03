@@ -19,6 +19,7 @@ namespace lwrcl
   public:
     void on_publication_matched(dds::pub::DataWriter<T>& writer, const dds::core::status::PublicationMatchedStatus& status) override
     {
+      (void)writer; // Unused parameter
       count = status.current_count();
     }
 

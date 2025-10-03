@@ -14,6 +14,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <sstream> 
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -108,7 +109,6 @@ namespace lwrcl
     if (type_ != Type::BOOL)
     {
       throw std::runtime_error("Parameter is not a bool");
-      return false;
     }
     return string_value_ == "true";
   }
@@ -118,9 +118,8 @@ namespace lwrcl
     if (type_ != Type::INT)
     {
       throw std::runtime_error("Parameter is not an int");
-      return 0;
     }
-    int int_value;
+    int int_value{};
     std::istringstream iss(string_value_);
     iss >> int_value;
     return int_value;
@@ -131,9 +130,8 @@ namespace lwrcl
     if (type_ != Type::DOUBLE)
     {
       throw std::runtime_error("Parameter is not a double");
-      return 0.0;
     }
-    double double_value;
+    double double_value{};
     std::istringstream iss(string_value_);
     iss >> double_value;
     return double_value;
@@ -146,7 +144,6 @@ namespace lwrcl
     if (type_ != Type::BOOL_ARRAY)
     {
       throw std::runtime_error("Parameter is not a bool array");
-      return {};
     }
     return string_to_vector<bool>(string_value_);
   }
@@ -156,7 +153,6 @@ namespace lwrcl
     if (type_ != Type::INT_ARRAY)
     {
       throw std::runtime_error("Parameter is not an int array");
-      return {};
     }
     return string_to_vector<int>(string_value_);
   }
@@ -166,7 +162,6 @@ namespace lwrcl
     if (type_ != Type::DOUBLE_ARRAY)
     {
       throw std::runtime_error("Parameter is not a double array");
-      return {};
     }
     return string_to_vector<double>(string_value_);
   }
@@ -176,7 +171,6 @@ namespace lwrcl
     if (type_ != Type::STRING_ARRAY)
     {
       throw std::runtime_error("Parameter is not a string array");
-      return {};
     }
     return string_to_vector<std::string>(string_value_);
   }
@@ -186,7 +180,6 @@ namespace lwrcl
     if (type_ != Type::BYTE_ARRAY)
     {
       throw std::runtime_error("Parameter is not a string array");
-      return {};
     }
     return string_to_vector<uint8_t>(string_value_);
   }
@@ -411,7 +404,7 @@ namespace lwrcl
       }
       else
       {
-        std::runtime_error("Error: Node pointer is null, cannot add to executor.");
+        throw std::runtime_error("Error: Node pointer is null, cannot add to executor.");
       }
     }
 
@@ -443,7 +436,7 @@ namespace lwrcl
     void MultiThreadedExecutor::clear()
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      for (auto node : nodes_)
+      for (auto &node : nodes_)
       {
         if (node != nullptr)
         {
@@ -514,7 +507,7 @@ namespace lwrcl
     int MultiThreadedExecutor::get_number_of_threads() const
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      return threads_.size();
+      return static_cast<int>(threads_.size());
     }
   } // namespace executors
 
@@ -578,76 +571,87 @@ namespace lwrcl
                       .count());
     default:
       throw std::runtime_error("Unsupported clock type.");
-      return Time();
     }
   }
   Clock::ClockType Clock::get_clock_type() const { return type_; }
 
-  // Rate implementation
-  Rate::Rate(const Duration &period) 
-  : period_(period),
-    next_time_(std::chrono::system_clock::now() + std::chrono::nanoseconds(period.nanoseconds()))
+  // --- Rate implementation (QNX μs system_clock fix) ---
+  Rate::Rate(const Duration &period)
+      : period_(period)
+      , next_time_(
+            std::chrono::system_clock::now()
+            + std::chrono::duration_cast<std::chrono::system_clock::duration>(
+                std::chrono::nanoseconds(period.nanoseconds())))
   {
   }
 
   void Rate::sleep()
   {
-    auto now = std::chrono::system_clock::now();
+    using sys_clock = std::chrono::system_clock;
+    using sys_dur   = sys_clock::duration;
+
+    const sys_dur period_d =
+        std::chrono::duration_cast<sys_dur>(std::chrono::nanoseconds(period_.nanoseconds()));
+
+    auto now = sys_clock::now();
     if (now >= next_time_)
     {
-      auto periods_missed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - next_time_) /
-                                std::chrono::nanoseconds(period_.nanoseconds()) +
-                            1;
-      auto duration_to_add =
-          std::chrono::nanoseconds(static_cast<long long>(periods_missed) * period_.nanoseconds());
-      auto next_time_temp = next_time_ + duration_to_add;
-      next_time_ = std::chrono::time_point_cast<std::chrono::system_clock::duration>(next_time_temp);
+      const auto behind = now - next_time_;
+      const auto periods_missed = behind / period_d + sys_dur::rep(1);
+      next_time_ += periods_missed * period_d;
     }
-    std::this_thread::sleep_until(next_time_);
 
-    auto duration_to_add = std::chrono::nanoseconds(period_.nanoseconds());
-    auto next_time_temp = next_time_ + duration_to_add;
-    next_time_ = std::chrono::time_point_cast<std::chrono::system_clock::duration>(next_time_temp);
+    std::this_thread::sleep_until(next_time_);
+    next_time_ += period_d;
   }
 
+  // --- WallRate implementation (use steady_clock::duration explicitly) ---
   WallRate::WallRate(const Duration &period)
-      : period_(period),
-        next_time_(std::chrono::steady_clock::now() + std::chrono::nanoseconds(period.nanoseconds()))
+      : period_(period)
+      , next_time_(
+            std::chrono::steady_clock::now()
+            + std::chrono::duration_cast<std::chrono::steady_clock::duration>(
+                std::chrono::nanoseconds(period.nanoseconds())))
   {
   }
 
   void WallRate::sleep()
   {
-    auto now = std::chrono::steady_clock::now();
+    using steady = std::chrono::steady_clock;
+    using steady_dur = steady::duration;
+
+    const steady_dur period_d =
+        std::chrono::duration_cast<steady_dur>(std::chrono::nanoseconds(period_.nanoseconds()));
+
+    auto now = steady::now();
     if (now >= next_time_)
     {
-      auto periods_missed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - next_time_) /
-                                std::chrono::nanoseconds(period_.nanoseconds()) +
-                            1;
-      next_time_ += periods_missed * std::chrono::nanoseconds(period_.nanoseconds());
+      const auto behind = now - next_time_;
+      const auto periods_missed = behind / period_d + steady_dur::rep(1);
+      next_time_ += periods_missed * period_d;
     }
+
     std::this_thread::sleep_until(next_time_);
-    next_time_ += std::chrono::nanoseconds(period_.nanoseconds());
+    next_time_ += period_d;
   }
 
+  // NOTE: The initializer order below is arranged to follow the *declaration order* in lwrcl.hpp.
+  // The build on QNX enables -Werror=reorder, so participant_owned_ must be initialized *after*
+  // closed_ because closed_ is declared earlier in the class (per your error log).
   Node::Node(int domain_id)
-      : participant_(nullptr),
-        channel_(std::make_shared<Channel<ChannelCallback *>>()),
-        clock_(std::make_unique<Clock>()),
-        name_("lwrcl_default_node"),
-        stop_flag_(false),
-        participant_owned_(true),
-        closed_(false),
-        parameters_()
+      : closed_(false)            // <-- initialize closed_ first
+      , participant_(nullptr)
+      , channel_(std::make_shared<Channel<ChannelCallback *>>())
+      , clock_(std::make_unique<Clock>())
+      , name_("lwrcl_default_node")
+      , stop_flag_(false)
+      , participant_owned_(true)  // <-- then participant_owned_
+      , parameters_()
   {
     try {
-      // Create DomainParticipant QoS
       dds::domain::qos::DomainParticipantQos participant_qos;
-      
-      // Create domain participant using proper Cyclone DDS factory method
       dds::domain::DomainParticipant dp(domain_id, participant_qos);
       participant_ = std::make_shared<dds::domain::DomainParticipant>(std::move(dp));
-          
       if (!participant_) {
         throw std::runtime_error("Failed to create domain participant");
       }
@@ -657,23 +661,19 @@ namespace lwrcl
   }
 
   Node::Node(int domain_id, const std::string &name)
-      : participant_(nullptr),
-        channel_(std::make_shared<Channel<ChannelCallback *>>()),
-        clock_(std::make_unique<Clock>()),
-        name_(name),
-        stop_flag_(false),
-        participant_owned_(true),
-        closed_(false),
-        parameters_()
+      : closed_(false)            // <-- initialize closed_ first
+      , participant_(nullptr)
+      , channel_(std::make_shared<Channel<ChannelCallback *>>())
+      , clock_(std::make_unique<Clock>())
+      , name_(name)
+      , stop_flag_(false)
+      , participant_owned_(true)
+      , parameters_()
   {
     try {
-      // Create DomainParticipant QoS
       dds::domain::qos::DomainParticipantQos participant_qos;
-      
-      // Create domain participant using proper Cyclone DDS factory method
       dds::domain::DomainParticipant dp(domain_id, participant_qos);
       participant_ = std::make_shared<dds::domain::DomainParticipant>(std::move(dp));
-          
       if (!participant_) {
         throw std::runtime_error("Failed to create domain participant");
       }
@@ -683,25 +683,20 @@ namespace lwrcl
   }
 
   Node::Node(const std::string &name)
-      : participant_(nullptr),
-        channel_(std::make_shared<Channel<ChannelCallback *>>()),
-        clock_(std::make_unique<Clock>()),
-        name_(name),
-        stop_flag_(false),
-        participant_owned_(true),
-        closed_(false),
-        parameters_()
+      : closed_(false)            // <-- initialize closed_ first
+      , participant_(nullptr)
+      , channel_(std::make_shared<Channel<ChannelCallback *>>())
+      , clock_(std::make_unique<Clock>())
+      , name_(name)
+      , stop_flag_(false)
+      , participant_owned_(true)
+      , parameters_()
   {
     int domain_id = 0; // Default domain ID
-    
     try {
-      // Create DomainParticipant QoS
       dds::domain::qos::DomainParticipantQos participant_qos;
-      
-      // Create domain participant using proper Cyclone DDS factory method
       dds::domain::DomainParticipant dp(domain_id, participant_qos);
       participant_ = std::make_shared<dds::domain::DomainParticipant>(std::move(dp));
-          
       if (!participant_) {
         throw std::runtime_error("Failed to create domain participant");
       }
@@ -711,14 +706,14 @@ namespace lwrcl
   }
 
   Node::Node(std::shared_ptr<dds::domain::DomainParticipant> participant)
-      : participant_(participant),
-        channel_(std::make_shared<Channel<ChannelCallback *>>()),
-        clock_(std::make_unique<Clock>()),
-        name_("lwrcl_default_node"),
-        stop_flag_(false),
-        participant_owned_(false),
-        closed_(false),
-        parameters_()
+      : closed_(false)            // <-- initialize closed_ first
+      , participant_(participant)
+      , channel_(std::make_shared<Channel<ChannelCallback *>>())
+      , clock_(std::make_unique<Clock>())
+      , name_("lwrcl_default_node")
+      , stop_flag_(false)
+      , participant_owned_(false)
+      , parameters_()
   {
     if (!participant_)
     {
@@ -728,14 +723,14 @@ namespace lwrcl
 
   Node::Node(
       std::shared_ptr<dds::domain::DomainParticipant> participant, const std::string &name)
-      : participant_(participant),
-        channel_(std::make_shared<Channel<ChannelCallback *>>()),
-        clock_(std::make_unique<Clock>()),
-        name_(name),
-        stop_flag_(false),
-        participant_owned_(false),
-        closed_(false),
-        parameters_()
+      : closed_(false)            // <-- initialize closed_ first
+      , participant_(participant)
+      , channel_(std::make_shared<Channel<ChannelCallback *>>())
+      , clock_(std::make_unique<Clock>())
+      , name_(name)
+      , stop_flag_(false)
+      , participant_owned_(false)
+      , parameters_()
   {
     if (!participant_)
     {
@@ -900,6 +895,7 @@ namespace lwrcl
   void Node::set_parameters(const std::vector<Parameter> &parameters)
   {
     std::vector<std::shared_ptr<ParameterBase>> base_params;
+    base_params.reserve(parameters.size());
     for (const auto &param : parameters)
     {
       base_params.push_back(std::make_shared<Parameter>(param));
@@ -1137,7 +1133,6 @@ namespace lwrcl
     else
     {
       throw std::runtime_error("Parameter not found");
-      return Parameter();
     }
   }
 
@@ -1202,12 +1197,10 @@ namespace lwrcl
     if (std::signal(SIGINT, lwrcl_signal_handler) == SIG_ERR)
     {
       throw std::runtime_error("Failed to set signal handler.");
-      return;
     }
     if (std::signal(SIGTERM, lwrcl_signal_handler) == SIG_ERR)
     {
       throw std::runtime_error("Failed to set signal handler.");
-      return;
     }
 
     try
@@ -1220,15 +1213,13 @@ namespace lwrcl
         load_parameters(params_file_path);
       }
     }
-    catch (const YAML::Exception &e)
+    catch (const YAML::Exception &)
     {
       throw std::runtime_error("Error parsing YAML file");
-      return;
     }
     catch (const std::exception &e)
     {
       throw std::runtime_error(e.what());
-      return;
     }
   }
 

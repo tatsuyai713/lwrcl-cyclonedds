@@ -1,3 +1,6 @@
 [submodule "data_types/src/ros-data-types-cyclonedds"]
 	path = data_types/src/ros-data-types-cyclonedds
 	url = https://github.com/tatsuyai713/ros-data-types-cyclonedds
+[submodule "libraries/src/yaml-cpp"]
+	path = libraries/src/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
