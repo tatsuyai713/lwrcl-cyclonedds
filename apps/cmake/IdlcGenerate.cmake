@@ -52,7 +52,7 @@ function(idlc_generate)
     get_filename_component(IDL_BASENAME "${IDL_FILE}" NAME_WE)
     set(GEN_CPP "${GEN_MSG_DIR}/${IDL_BASENAME}.cpp")
     set(GEN_HPP "${GEN_MSG_DIR}/${IDL_BASENAME}.hpp")
-
+    
     add_custom_command(
       OUTPUT "${GEN_CPP}"
       WORKING_DIRECTORY "${GEN_MSG_DIR}"
@@ -63,9 +63,9 @@ function(idlc_generate)
               -I "${CMAKE_CURRENT_SOURCE_DIR}"
               -I "/opt/cyclonedds-libs/include"
               "${IDL_FILE}"
-      # 生成ヘッダの最小パッチ（名前空間文字列を dds_ スタイルへ）
+      # 生成ヘッダの最小パッチ（return "pkg::msg::Type"; → return "pkg::msg::dds_::Type_";）
       COMMAND ${CMAKE_COMMAND} -E env bash -c
-              "sed -i 's|return \\\"${PROJECT_NAME}::msg::${IDL_BASENAME}\\\";|return \\\"${PROJECT_NAME}::msg::dds_::${IDL_BASENAME}_\\\";|g' \"${GEN_HPP}\""
+              "sed -E -i 's/(return[[:space:]]*\")([[:alnum:]_]+::msg::)([[:alnum:]_]+)(\";)/\\1\\2dds_::\\3_\\4/' \"${GEN_HPP}\""
       DEPENDS ${IDLCG_NAME}_gen_msg_dir "${IDL_FILE}"
       BYPRODUCTS "${GEN_HPP}"
       COMMENT "[${IDLCG_NAME}] idlc: ${IDL_BASENAME} -> ${GEN_MSG_DIR}"
